@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jaeger-collector
+  namespace: metrics
+  labels:
+    app: jaeger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jaeger
+  template:
+    metadata:
+      labels:
+        app: jaeger
+    spec:
+      containers:
+        - name: jaeger-collector
+          image: jaegertracing/all-in-one:1.38  # You can change the image version if needed
+          ports:
+            - containerPort: 4317 # For traces (gRPC)
+          args:
+            - "--collector.otlp.enabled=true"
+          volumeMounts:
+            - name: jaeger-storage
+              mountPath: /var/lib/jaeger
+      volumes:
+        - name: jaeger-storage
+          persistentVolumeClaim:
+            claimName: jaeger-pvc  # This PVC will store Jaeger's data
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jaeger-collector
+  namespace: metrics
+spec:
+  selector:
+    app: jaeger
+  ports:
+    - name: http-api
+      port: 5778
+      targetPort: 5778
+    - name: grpc
+      port: 4317
+      targetPort: 4317
+    - name: jaeger-ui
+      port: 16686
+      targetPort: 16686
+    - name: traces
+      port: 14268
+      targetPort: 14268
+  type: ClusterIP

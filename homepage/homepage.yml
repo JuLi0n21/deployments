@@ -1,0 +1,18 @@
+services:
+  astro-homepage:
+    image: docker.illegalesachen.download/repository/astro-homepage:latest
+    ports:
+      - "4321:80"
+    restart: unless-stopped
+      
+  eai-praesentation-frameworks:
+    image: docker.illegalesachen.download/uni/eai/presentation-frameworks:latest
+    ports:
+      - "3338:80"
+    restart: unless-stopped
+
+  computer-graphics:
+    image: docker.illegalesachen.download/uni/computer-graphics:latest
+    ports:
+      - "3339:80"
+    restart: unless-stopped

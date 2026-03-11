@@ -1,0 +1,147 @@
+services:
+  orders-db:
+    image: postgres:18.1-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: orders
+      POSTGRES_DB: orders
+    volumes:
+      - orders-data:/var/lib/postgresql/data
+    networks:
+      - micro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d orders"]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+
+  products-db:
+    image: postgres:18.1-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: products
+      POSTGRES_DB: products
+    volumes:
+      - products-data:/var/lib/postgresql/data
+    networks:
+      - micro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d products"]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+
+  customer-db:
+    image: postgres:18.1-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: customers
+      POSTGRES_DB: customers
+    volumes:
+      - customers-data:/var/lib/postgresql/data
+    networks:
+      - micro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d customers"]
+      interval: 3s
+      timeout: 30s
+      retries: 5
+
+  orders:
+    image: docker.illegalesachen.download/uni/eai/orders:latest
+    ports:
+      - "3334:8080"
+    environment:
+      - DB_HOST=orders-db
+      - DB_PORT=5432
+      - DB_NAME=orders
+      - DB_USER=postgres
+      - DB_PASSWORD=orders
+    networks:
+      - micro
+    depends_on:
+      orders-db:
+        condition: service_healthy
+
+  products:
+    image: docker.illegalesachen.download/uni/eai/products:latest
+    ports:
+      - "3335:8081"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://products-db:5432/products
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=products
+      - SERVER.FORWARD-HEADERS-STRATEGY=FRAMEWORK
+    networks:
+      - micro
+    depends_on:
+      products-db:
+        condition: service_healthy
+
+  customers:
+    image: docker.illegalesachen.download/uni/eai/customers:latest
+    ports:
+      - "3336:8080"
+    environment:
+      - DB_URL=postgres://postgres:customers@customer-db:5432/customers?sslmode=disable
+    networks:
+      - micro
+    depends_on:
+      customer-db:
+        condition: service_healthy
+
+  rabbitmq:
+    image: rabbitmq:4-management-alpine
+    container_name: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - micro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 30s
+      retries: 5
+
+  wso2-mi:
+    image: eai-esp:latest
+    ports:
+      - "8290:8290" 
+      - "8253:8253"
+      - "9191:9191"
+    networks:
+      - micro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      orders-db:
+        condition: service_healthy
+      products-db:
+        condition: service_healthy
+      customer-db:
+        condition: service_healthy
+
+  frontend:
+      image: docker.illegalesachen.download/uni/eai/frontend:latest
+      ports:
+        - "3333:80"
+      networks:
+        - micro
+      depends_on:
+        - orders
+        - products
+        - customers
+        - wso2-mi
+
+networks:
+  micro:
+    driver: bridge
+
+volumes:
+  orders-data:
+  products-data:
+  customers-data:
