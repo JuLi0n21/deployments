@@ -2,6 +2,10 @@ services:
   backend:
     image: docker.illegalesachen.download/osu/music/proxy:latest
     container_name: proxy-container
+    environment:
+      - CLIENT_ID=34597
+      - CLIENT_SECRET=WwTSsGxrpZeTakYHl4eGFQjVK1zgfUKvvkPvU1DO
+      - REDIRECT_URI=/callback
     ports:
       - "5002:80"
     volumes:
