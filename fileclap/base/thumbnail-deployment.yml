@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thumbnail-deployment
+  namespace: default
+  labels:
+    app: thumbnail-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thumbnail-app
+  template:
+    metadata:
+      labels:
+        app: thumbnail-app
+    spec:
+      containers:
+        - name: thumbnail-container
+          image: juli0n21/thumbnails:latest
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - containerPort: 50051
+            - port: 50051
+      imagePullSecrets:
+        - name: dockerhub-secret
+      resources:
+        requests:
+          memory: "512Mi"
+        limits:
+          cpu: "1"
+          memory: "2048Mi"

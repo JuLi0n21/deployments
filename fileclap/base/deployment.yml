@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fileclap-deployment
+  namespace: default
+  labels:
+    app: fileclap-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fileclap-app
+  template:
+    metadata:
+      labels:
+        app: fileclap-app
+    spec:
+      containers:
+        - name: fileclap-container
+          image: juli0n21/fileclap:2025-Mar-02-22-71d4bd741a8c18783d9057193ca9c95c188e2df7
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /data
+              name: fileclap-storage
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: ACCOUNT_ID
+            - name: ACCESS_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: ACCESS_ID
+            - name: SECRET_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: SECRET_ID
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: BUCKET_NAME
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "otel-collector.metrics.svc.cluster.local:4317"
+          resources:
+            requests:
+              cpu: "1"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "512Mi"
+      volumes:
+        - name: fileclap-storage
+          persistentVolumeClaim:
+            claimName: fileclap-pvc
+      imagePullSecrets:
+        - name: dockerhub-secret

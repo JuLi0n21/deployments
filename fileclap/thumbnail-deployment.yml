@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thumbnail-deployment
+  namespace: default
+  labels:
+    app: thumbnail-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thumbnail-app
+  template:
+    metadata:
+      labels:
+        app: thumbnail-app
+    spec:
+      containers:
+        - name: thumbnail-container
+          image: juli0n21/thumbnails:153b8548ba15cf4aa94f51c6716992aff57b9a55
+          imagePullPolicy: IfNotPresent
+          ports: 
+            - containerPort: 50051
+            - containerPort: 8080
+      imagePullSecrets:
+        - name: dockerhub-secret

@@ -1,0 +1,125 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fileclap-deployment
+  namespace: default
+  labels:
+    app: fileclap-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fileclap-app
+  template:
+    metadata:
+      labels:
+        app: fileclap-app
+    spec:
+      containers:
+        - name: fileclap-container
+          image: juli0n21/fileclap:2026-Mar-01-20-dd48fb1ed23c6e597b14a90bf261b5bb5f48cdd2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - mountPath: /data
+              name: fileclap-storage
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: ACCOUNT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: ACCOUNT_ID
+            - name: ACCESS_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: ACCESS_ID
+            - name: SECRET_ID
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: SECRET_ID
+            - name: BUCKET_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: BUCKET_NAME
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: DATABASE_URL
+            - name: OPENAI_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: fileclap-secrets
+                  key: OPENAI_KEY
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "otel-collector.metrics.svc.cluster.local:4317"
+          resources:
+            requests:
+              cpu: "1"
+              memory: "4Gi"
+            limits:
+              cpu: "2"
+              memory: "8Gi"
+      volumes:
+        - name: fileclap-storage
+          persistentVolumeClaim:
+            claimName: fileclap-pvc
+      imagePullSecrets:
+        - name: dockerhub-secret
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: fileclap-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: fileclap-deployment
+  maxReplicas: 4
+  minReplicas: 2
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 65
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 120
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 1
+          periodSeconds: 30
+    scaleUp:
+      stabilizationWindowSeconds: 60
+      selectPolicy: Max
+      policies:
+        - type: Pods
+          value: 4
+          periodSeconds: 30
