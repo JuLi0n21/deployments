@@ -1,8 +1,6 @@
 services:
   backend:
-    image: proxy
-    build:
-      context: ./proxy
+    image: docker.illegalesachen.download/osu/music/proxy:latest
     container_name: proxy-container
     ports:
       - "5002:80"
@@ -13,11 +11,8 @@ services:
       - frontend
 
   frontend:
-    image: frontend
-    build:
-      context: ./frontend
+    image: docker.illegalesachen.download/osu/music/frontend:latest
     container_name: frontend-container
     ports:
       - "5001:80"
     restart: always
-
