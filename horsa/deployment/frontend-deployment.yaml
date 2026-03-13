@@ -27,6 +27,8 @@ spec:
       labels:
         app: frontend
     spec:
+      imagePullSecrets:
+        - name: my-registry-secret
       containers:
         - name: frontend
           image: "docker.illegalesachen.download/horsa-frontend:1037c21db50619e27e0bbca3e29ce2178b86d84d"

@@ -25,6 +25,8 @@ spec:
       labels:
         app: backend
     spec:
+      imagePullSecrets:
+        - name: my-registry-secret
       containers:
         - name: backend
           image: "docker.illegalesachen.download/horsa-backend:1037c21db50619e27e0bbca3e29ce2178b86d84d"
