@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: horsa
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+  selector:
+    app: backend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: horsa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: "docker.illegalesachen.download/horsa-backend:1037c21db50619e27e0bbca3e29ce2178b86d84d"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              value: "postgres://user:password@postgres:5432/horsea_db?sslmode=disable"
+            - name: JWT_SECRET
+              value: "j3vqrdp74zdw5idpjf4939fb5bxc0vdimreoaxo0xn2phvyumymp6k9s0ujxnwjbvbekxi"
+            - name: ENV
+              value: "production"
+            - name: ACCOUNT_ID
+              value: "80a1c5d4ec18d522a4c68055fde16999"
+            - name: ACCESS_KEY
+              value: "76fb68b99d7a6e39526a6c18f1e60e94"
+            - name: SECRET_KEY
+              value: "b1db0edff8a14ddbe0bac1d41279be061b1ee7b58750402a710049ce660d8254"
+            - name: BUCKET
+              value: "horsa-prod"
+            - name: KEYCLOAK_URL
+              value: "https://sso.illegalesachen.download"
+            - name: KEYCLOAK_REALM
+              value: "horsa"
+            - name: KEYCLOAK_CLIENT_ID
+              value: "capability-client"
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: kbgQ5WnMu67GDfpQ7Cvo6Uflq7x2n1ve

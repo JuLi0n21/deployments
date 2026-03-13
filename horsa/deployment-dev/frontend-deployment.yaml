@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: horsa-dev
+spec:
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30174
+  selector:
+    app: frontend
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: horsa-dev
+  name: frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      imagePullSecrets:
+        - name: my-registry-secret
+      containers:
+        - name: frontend
+          image: "docker.illegalesachen.download/horsa-frontend:1037c21db50619e27e0bbca3e29ce2178b86d84d"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 80
+          env:
+            - name: BACKEND_HOST
+              value: "backend"
+            - name: BACKEND_PORT
+              value: "8080"
