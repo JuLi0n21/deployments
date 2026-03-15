@@ -38,9 +38,9 @@ kind: Service
 metadata:
   name: tweeter-frontend-service
   namespace: ise-tweeter
-  spec:
-    selector:
-      app: tweeter-frontend
+spec:
+  selector:
+    app: tweeter-frontend
   ports:
     - protocol: TCP
       port: 80

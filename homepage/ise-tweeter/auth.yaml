@@ -45,8 +45,8 @@ kind: Service
 metadata:
   name: tweeter-auth-service
   namespace: ise-tweeter
-  spec:
-    selector:
+spec:
+  selector:
       app: tweeter-auth
   ports:
     - protocol: TCP
