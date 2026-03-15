@@ -8,7 +8,7 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-set-headers: "true"
 spec:
   # Must be used to configure the Ingress Controller (->  application routing add-on creates an Ingress class under this name)
-  ingressClassName: webapprouting.kubernetes.azure.com
+  ingressClassName: nginx
   rules:
     - http:
         paths:
