@@ -34,7 +34,7 @@ spec:
             periodSeconds: 5
           env:
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgres://user:password@postgres:5432/horsea_db?sslmode=disable"
+              value: "jdbc:postgresql://tweeter-postgres-db-service:5432/tweeter"
             - name: SPRING_DATASOURCE_USERNAME
               value: "user"
             - name: SPRING_DATASOURCE_PASSWORD
