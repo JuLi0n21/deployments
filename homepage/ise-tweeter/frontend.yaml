@@ -39,8 +39,8 @@ metadata:
   name: tweeter-frontend-service
   namespace: ise-tweeter
   spec:
-  selector:
-    app: tweeter-frontend
+    selector:
+      app: tweeter-frontend
   ports:
     - protocol: TCP
       port: 80

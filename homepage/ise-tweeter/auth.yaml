@@ -46,8 +46,8 @@ metadata:
   name: tweeter-auth-service
   namespace: ise-tweeter
   spec:
-  selector:
-    app: tweeter-auth
+    selector:
+      app: tweeter-auth
   ports:
     - protocol: TCP
       port: 80
