@@ -38,17 +38,18 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: nginx-ingress-gateway-frontend
-  namespace: ise-tweeter 
+  namespace: backend-dev
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
 spec:
-  # Must be used to configure the Ingress Controller (->  application routing add-on creates an Ingress class under this name)
-  ingressClassName: webapprouting.kubernetes.azure.com
+  ingressClassName: nginx
   rules:
     - http:
         paths:
           - path: /
-            pathType: Prefix
+            pathType: ImplementationSpecific
             backend:
               service:
-                name: tweeter-frontend-service
+                name: tweeter-frontend
                 port:
                   number: 80
