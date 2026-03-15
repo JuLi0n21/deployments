@@ -16,6 +16,8 @@ spec:
       containers:
         - name: tweeter-auth
           image: docker.illegalesachen.download/uni/ise/auth:latest
+      imagePullSecrets:
+        - name: my-registry-secret
           ports:
             - containerPort: 8080
           livenessProbe:
@@ -32,11 +34,11 @@ spec:
             periodSeconds: 5
           env:
             - name: SPRING_DATASOURCE_URL
-              value:
+              value: "jdbc:postgres://user:password@postgres:5432/horsea_db?sslmode=disable"
             - name: SPRING_DATASOURCE_USERNAME
-              value:
+              value: "user"
             - name: SPRING_DATASOURCE_PASSWORD
-              value:
+              value: "password"
 ---
 apiVersion: v1
 kind: Service

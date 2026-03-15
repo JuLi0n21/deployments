@@ -16,6 +16,8 @@ spec:
       containers:
         - name: tweeter-tweet
           image: docker.illegalesachen.download/uni/ise/tweet:latest
+      imagePullSecrets:
+        - name: my-registry-secret
           ports:
             - containerPort: 8080
           livenessProbe:
@@ -32,25 +34,23 @@ spec:
             periodSeconds: 5
           env:
             - name: SPRING_DATASOURCE_URL
-              value:
+              value: "jdbc:postgres://user:password@postgres:5432/horsea_db?sslmode=disable"
             - name: SPRING_DATASOURCE_USERNAME
-              value:
+              value: "user"
             - name: SPRING_DATASOURCE_PASSWORD
-              value:
+              value: "password"
             - name: SPRING_DATA_REDIS_URL
-              value:
+              value: "redis"
             - name: SPRING_DATA_REDIS_PORT
               value: "6379"
             - name: SPRING_DATA_REDIS_PASSWORD
+              value: "redis"
             - name: BLOB_ENABLED
               value: "true"
             - name: BLOB_CONTAINER
-              value: tweeter
+              value: "tweeter"
             - name: BLOB_CONNECTION_STRING
-              valueFrom:
-                secretKeyRef:
-                  name: tweeter-azurite-storage-connection-secrets
-                  key: BLOB_CONNECTION_STRING
+              value: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://tweeter-azurite-service:10000/devstoreaccount1;"
 ---
 apiVersion: v1
 kind: Service

@@ -32,10 +32,7 @@ spec:
             - containerPort: 6379
           env:
             - name: REDIS_PASSWORD
-              value: 
-          volumeMounts:
-            - mountPath: /var/lib/redis/data
-              name: tweeter-redis-db-storage
+              value: redis
       volumes:
         - name: tweeter-redis-db-storage
           persistentVolumeClaim:
