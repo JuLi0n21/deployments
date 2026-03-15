@@ -1,0 +1,60 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tweeter-postgres-db-pvc
+  namespace: ise-tweeter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweeter-postgres-db
+  namespace: ise-tweeter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweeter-postgres-db
+  template:
+    metadata:
+      labels:
+        app: tweeter-postgres-db
+    spec:
+      containers:
+        - name: tweeter-postgres-db
+          image: postgres:17-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              value:
+            - name: POSTGRES_PASSWORD
+              value:
+            - name: POSTGRES_DB
+              value: "tweeter"
+          volumeMounts:
+            - mountPath: /data
+              name: tweeter-postgres-db-storage
+      volumes:
+        - name: tweeter-postgres-db-storage
+          persistentVolumeClaim:
+            claimName: tweeter-postgres-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tweeter-postgres-db-service
+  namespace: ise-tweeter
+spec:
+  selector:
+    app: tweeter-postgres-db
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP

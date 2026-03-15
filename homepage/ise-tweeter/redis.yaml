@@ -1,0 +1,56 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tweeter-redis-db-pvc
+  namespace: ise-tweeter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweeter-redis-db
+  namespace: ise-tweeter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweeter-redis-db
+  template:
+    metadata:
+      labels:
+        app: tweeter-redis-db
+    spec:
+      containers:
+        - name: tweeter-redis-db
+          image: redis:8.0-M03-alpine
+          ports:
+            - containerPort: 6379
+          env:
+            - name: REDIS_PASSWORD
+              value: 
+          volumeMounts:
+            - mountPath: /var/lib/redis/data
+              name: tweeter-redis-db-storage
+      volumes:
+        - name: tweeter-redis-db-storage
+          persistentVolumeClaim:
+            claimName: tweeter-redis-db-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tweeter-redis-db-service
+  namespace: ise-tweeter 
+spec:
+  selector:
+    app: tweeter-redis-db
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+  type: ClusterIP

@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweeter-tweet
+  namespace: ise-tweeter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweeter-tweet
+  template:
+    metadata:
+      labels:
+        app: tweeter-tweet
+    spec:
+      containers:
+        - name: tweeter-tweet
+          image: docker.illegalesachen.download/uni/ise/tweet:latest
+          ports:
+            - containerPort: 8080
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 60
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 5
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value:
+            - name: SPRING_DATASOURCE_USERNAME
+              value:
+            - name: SPRING_DATASOURCE_PASSWORD
+              value:
+            - name: SPRING_DATA_REDIS_URL
+              value:
+            - name: SPRING_DATA_REDIS_PORT
+              value: "6379"
+            - name: SPRING_DATA_REDIS_PASSWORD
+            - name: BLOB_ENABLED
+              value: "true"
+            - name: BLOB_CONTAINER
+              value: tweeter
+            - name: BLOB_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: tweeter-azurite-storage-connection-secrets
+                  key: BLOB_CONNECTION_STRING
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tweeter-tweet-service
+  namespace: ise-tweeter
+spec:
+  selector:
+    app: tweeter-tweet
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  clusterIP: None

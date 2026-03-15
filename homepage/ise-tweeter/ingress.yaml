@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress-gateway-services
+  namespace: ise-tweeter 
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/proxy-set-headers: "true"
+spec:
+  # Must be used to configure the Ingress Controller (->  application routing add-on creates an Ingress class under this name)
+  ingressClassName: webapprouting.kubernetes.azure.com
+  rules:
+    - http:
+        paths:
+          - path: /api/auth(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tweeter-auth-service
+                port:
+                  number: 80
+          - path: /api/tweet(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tweeter-tweet-service
+                port:
+                  number: 80
+          - path: /api/user(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: tweeter-user-service
+                port:
+                  number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress-gateway-frontend
+  namespace: ise-tweeter 
+spec:
+  # Must be used to configure the Ingress Controller (->  application routing add-on creates an Ingress class under this name)
+  ingressClassName: webapprouting.kubernetes.azure.com
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tweeter-frontend-service
+                port:
+                  number: 80

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweeter-frontend
+  namespace: ise-tweeter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweeter-frontend
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: tweeter-frontend
+    spec:
+      containers:
+        - name: tweeter-frontend
+          image: docker.illegalesachen.download/uni/ise/frontend:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: ENV_AUTH_API_URL
+              value: https://ise-tweeter.illegalesachen.download/api/auth/
+            - name: ENV_TWEET_API_URL
+              value: https://ise-tweeter.illegalesachen.download/api/tweet/
+            - name: ENV_USER_API_URL
+              value: https://ise-tweeter.illegalesachen.download/api/user/
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tweeter-frontend-service
+  namespace: ise-tweeter
+  spec:
+  selector:
+    app: tweeter-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  clusterIP: None

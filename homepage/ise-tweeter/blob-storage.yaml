@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: tweeter-tweeter-azurite-pvc
+  namespace: ise-tweeter
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 4Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tweeter-azurite
+  namespace: ise-tweeter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tweeter-azurite
+  template:
+    metadata:
+      labels:
+        app: tweeter-azurite
+    spec:
+      containers:
+        - name: tweeter-azurite
+          image: mcr.microsoft.com/azure-storage/azurite:latest
+          ports:
+            - containerPort: 10000
+          volumeMounts:
+            - mountPath: /var/lib/azurite/data
+              name: tweeter-azurite-storage
+          command: ["azurite", "--blobHost", "0.0.0.0"]
+      volumes:
+        - name: tweeter-azurite-storage
+          persistentVolumeClaim:
+            claimName: tweeter-tweeter-azurite-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tweeter-azurite-service
+  namespace: ise-tweeter
+spec:
+  selector:
+    app: tweeter-azurite
+  ports:
+    - protocol: TCP
+      port: 10000
+      targetPort: 10000
+  type: ClusterIP
