@@ -13,11 +13,11 @@ spec:
       labels:
         app: tweeter-auth
     spec:
+      imagePullSecrets:
+        - name: my-registry-secret
       containers:
         - name: tweeter-auth
           image: docker.illegalesachen.download/uni/ise/auth:latest
-      imagePullSecrets:
-        - name: my-registry-secret
           ports:
             - containerPort: 8080
           livenessProbe:

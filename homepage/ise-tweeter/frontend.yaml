@@ -18,11 +18,11 @@ spec:
       labels:
         app: tweeter-frontend
     spec:
+      imagePullSecrets:
+        - name: my-registry-secret
       containers:
         - name: tweeter-frontend
           image: docker.illegalesachen.download/uni/ise/frontend:latest
-      imagePullSecrets:
-        - name: my-registry-secret
           ports:
             - containerPort: 80
           env:
