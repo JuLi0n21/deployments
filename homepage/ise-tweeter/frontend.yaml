@@ -27,11 +27,11 @@ spec:
             - containerPort: 80
           env:
             - name: ENV_AUTH_API_URL
-              value: "https://ise-tweeter.illegalesachen.download/api/auth/"
+              value: "https://ise-tweeter.illegalesachen.download/api/auth"
             - name: ENV_TWEET_API_URL
-              value: "https://ise-tweeter.illegalesachen.download/api/tweet/"
+              value: "https://ise-tweeter.illegalesachen.download/api/tweet"
             - name: ENV_USER_API_URL
-              value: "https://ise-tweeter.illegalesachen.download/api/user/"
+              value: "https://ise-tweeter.illegalesachen.download/api/user"
 ---
 apiVersion: v1
 kind: Service
